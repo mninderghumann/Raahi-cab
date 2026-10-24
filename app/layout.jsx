@@ -1,0 +1,1 @@
+export const metadata={title:"Raahi | Premium Cab Booking India",description:"Explore one-way, round-trip, airport and local cab journeys in India."};export default function Layout({children}){return <html lang="en"><body style={{margin:0,fontFamily:"Arial,sans-serif",background:"#f7f5ef",color:"#123b30"}}>{children}</body></html>}
