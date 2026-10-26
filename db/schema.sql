@@ -10,6 +10,7 @@ create table if not exists public.booking_requests (
  travel_date date not null,
  trip_type text not null check(trip_type in ('One Way','Round Trip','Airport','Local Rental')),
  vehicle_category text not null check(vehicle_category in ('sedan','suv','luxury')),
+ consent_at timestamptz not null default now(),
  status text not null default 'pending' check(status in ('pending','confirmed','declined','cancelled')),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
@@ -19,3 +20,15 @@ create index if not exists booking_requests_status_idx on public.booking_request
 alter table public.booking_requests enable row level security;
 -- No anon/authenticated policies: public clients cannot read or write bookings.
 revoke all on public.booking_requests from anon, authenticated;
+
+-- Record every administrator decision for traceability.
+create table if not exists public.booking_status_events (
+ id bigint generated always as identity primary key,
+ booking_id uuid not null references public.booking_requests(id) on delete cascade,
+ previous_status text not null,
+ new_status text not null,
+ changed_at timestamptz not null default now()
+);
+create index if not exists booking_status_events_booking_id_idx on public.booking_status_events(booking_id,changed_at desc);
+alter table public.booking_status_events enable row level security;
+revoke all on public.booking_status_events from anon, authenticated;
